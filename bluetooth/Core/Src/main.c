@@ -356,7 +356,7 @@ void StartDefaultTask(void *argument)
 	HAL_UART_Transmit(&huart2, pReceive, Size, Timeout);
 	  }
 HAL_UART_Receive(&huart2, pReceive, Size, Timeout);
-if(strcmp(pReceive,"siemb")==0)
+if(strcmp(pReceive,"siemba")==0)
 {
 	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 }
