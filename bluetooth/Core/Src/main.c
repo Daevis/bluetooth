@@ -42,6 +42,7 @@
 /* Private variables ---------------------------------------------------------*/
  UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart3;
 
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -70,9 +71,12 @@ const osMessageQueueAttr_t myQueue01_attributes = {
   .name = "myQueue01"
 };
 /* USER CODE BEGIN PV */
-const char pData[]="siema";
- int Size= 5;
-		char pReceive[5];
+int flaga=0;
+char pData[]="siemarr";
+uint8_t data=0xBe;
+uint8_t data_in=0;
+ int Size= 7;
+		char pReceive[7];
 		  	  int Timeout=100;
 
 /* USER CODE END PV */
@@ -82,6 +86,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_USART3_UART_Init(void);
 void StartDefaultTask(void *argument);
 void Start_Temp_Measure(void *argument);
 void Start_Send_Data(void *argument);
@@ -96,6 +101,29 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 }
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+
+
+	HAL_UART_Receive_IT(&huart1,  pReceive, Size);
+	if(strcmp(pReceive,"siema")==0)
+	{
+
+	}
+	else if(strcmp(pReceive,"niema")==0)
+	{
+
+		}
+
+
+	 HAL_UART_Transmit_IT(&huart2, pReceive, Size);
+
+
+}
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -129,7 +157,10 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_USART1_UART_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
+  HAL_UART_Receive_IT(&huart1,  pReceive, Size);
+	HAL_UART_Transmit_IT(&huart1, pReceive, Size);
 
   /* USER CODE END 2 */
 
@@ -294,6 +325,39 @@ static void MX_USART2_UART_Init(void)
 }
 
 /**
+  * @brief USART3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART3_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART3_Init 0 */
+
+  /* USER CODE END USART3_Init 0 */
+
+  /* USER CODE BEGIN USART3_Init 1 */
+
+  /* USER CODE END USART3_Init 1 */
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 9600;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_HalfDuplex_Init(&huart3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART3_Init 2 */
+
+  /* USER CODE END USART3_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -349,14 +413,17 @@ void StartDefaultTask(void *argument)
   for(;;)
   {
 
-
+	  HAL_UART_Transmit(&huart3, &data, 1,HAL_MAX_DELAY);
+	  HAL_UART_Receive(&huart3, &data_in, 1, HAL_MAX_DELAY);
+	  HAL_UART_Transmit(&huart2, &data_in, 1, HAL_MAX_DELAY);
+/*
 	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)==GPIO_PIN_RESET){
 
 
 	HAL_UART_Transmit(&huart2, pReceive, Size, Timeout);
 	  }
 HAL_UART_Receive(&huart2, pReceive, Size, Timeout);
-if(strcmp(pReceive,"siemba")==0)
+if(strcmp(pReceive,"siema")==0)
 {
 	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 }
@@ -364,7 +431,7 @@ if(strcmp(pReceive,"siemba")==0)
 
 
 
-
+*/
 
     osDelay(1000);
   }
@@ -402,9 +469,11 @@ void Start_Send_Data(void *argument)
   /* Infinite loop */
   for(;;)
   {
-HAL_UART_Receive(&huart1, pReceive, Size, Timeout);
+
+
+//HAL_UART_Receive(&huart1, pReceive, Size, Timeout);
 osDelay(100);
-		HAL_UART_Transmit(&huart1, pReceive, Size, Timeout);
+	//	HAL_UART_Transmit(&huart1, pReceive, Size, Timeout);
 
 
 	if(strcmp(pReceive,"siema")==0)
